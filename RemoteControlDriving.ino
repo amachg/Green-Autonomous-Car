@@ -11,8 +11,7 @@
 #include "Proximity_US.h"
 
 void setup() {
-  //randomSeed(analogRead(15));
-  Serial.begin(9600);//115200
+  Serial.begin(9600);
   Serial.println("\nSerial OK");
 
   setup_OLED();
