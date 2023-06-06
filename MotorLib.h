@@ -63,3 +63,51 @@ void update_motors(const Throttle throttle) {
     digitalWrite(pin_right_in2, LOW);
   }
 }
+
+enum MoveDirection  { backward=0, forward=1 };
+enum AccelerateSign { negative=0, positive=1 };
+
+void accelerate(const MoveDirection dir, const AccelerateSign acc_sign) {  
+  digitalWrite(dir ? pin_left_in2 : pin_left_in1, LOW);
+  digitalWrite(dir ? pin_right_in1 : pin_right_in2, LOW);
+
+  // Οι κινητήρες, αφόρτωτοι, ξεκινάνε με τιμή PWM ~95/255 και σταματάνε ~35/255
+  constexpr byte low_start_PWM = 105,
+                 high_PWM = 255,
+                 low_stop_PWM = 0,
+                 step_PWM = 5;
+  const byte pin_left_PWM = dir ? pin_left_in1 : pin_left_in2;
+  const byte pin_right_PWM = dir ? pin_right_in2 : pin_right_in1;
+  const auto wait_step = 20;
+  
+  for (int i = acc_sign ? low_start_PWM : high_PWM; 
+               acc_sign ? i <= high_PWM : i >= low_stop_PWM;
+               acc_sign ? i += step_PWM : i -= step_PWM) {
+    analogWrite(pin_left_PWM, i);
+    analogWrite(pin_right_PWM, i);
+    delay(wait_step);     // (255-105) / 5 x 20ms = 30 x 20ms = 600ms
+  }
+}
+
+void turn(const int angle) { // αριστερόστροφη ή δεξιόστροφη στροφή
+  const auto abs_angle = abs(angle);
+  println(angle > 0 ? (String)"Turn.L: " : (String)"Turn.R: " + abs_angle);
+  
+  // Positive angle is a Left car spins, all motors CW
+  // Negative angle is a Right car spin, all motors CCW
+  digitalWrite(pin_left_in1, angle > 0 ? LOW : HIGH);
+  digitalWrite(pin_left_in2, angle > 0 ? HIGH : LOW);
+  digitalWrite(pin_right_in1, angle > 0 ? LOW : HIGH);
+  digitalWrite(pin_right_in2, angle > 0 ? HIGH : LOW);
+  
+  const auto wait_step = 10 * abs_angle;  // experimental multiplier
+  delay(wait_step);                 // e.g. 90°<->900ms
+}
+
+void coast() { // τσούλησε
+  digitalWrite(pin_left_in1, LOW);
+  digitalWrite(pin_left_in2, LOW);
+  digitalWrite(pin_right_in1, LOW);
+  digitalWrite(pin_right_in2, LOW);
+  delay(500);
+}
