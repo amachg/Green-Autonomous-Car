@@ -19,10 +19,6 @@ void setup() {
   setup_motors();
   setup_ultrasonics();
   setup_RC();
-  println("");
-  
-  // Self driving mode
-  accelerate(forward, positive);
 }
 
 void loop() {
