@@ -23,7 +23,7 @@ void setup() {
 }
 
 void loop() {
-  // Obstacle avoidance manouvre at 40cm, checking every .5 sec.
+  // Obstacle avoidance maneuver at 40cm, checking every .5 sec.
   if (const auto delta_dist = get_obstacle_delta(40, 500)) {
     coast();
     accelerate(backward, positive);   // backup
